@@ -103,3 +103,60 @@ Foi gerado um prompt detalhado para ser usado em uma ferramenta como o Perplexit
 2.  Schema detalhado do banco de dados.
 3.  Especificação da API (endpoints).
 4.  Arquitetura de componentes do front-end.
+
+---
+
+### 8. Stitch Prompt for Project List UI
+
+```text
+Create a project listing page for a Next.js application using TypeScript and Tailwind CSS. The page should have a main content area and a collapsible sidebar on the left.
+
+**1. Sidebar:**
+   - The sidebar should be collapsible.
+   - It should contain the following navigation links:
+     - Dashboard
+     - Projects
+     - Clients
+     - Timer
+     - Settings
+
+**2. Main Content Area:**
+   - The main area should display a list of projects as cards, not in a table.
+   - Each project card should display:
+     - Project Name (e.g., "Luno App")
+     - Client Name (e.g., "Lucas's Team")
+     - A progress bar indicating the percentage of completed tasks.
+     - The total hours tracked for the project.
+     - The billable amount (calculated from total hours and hourly rate).
+   - There should be a "New Project" button in the top right corner of the main content area, which opens a modal or a new page to create a project.
+
+**3. Data Structure (Example):**
+
+Use the following data structure for projects:
+
+```json
+[
+  {
+    "id": "1",
+    "name": "Luno App",
+    "client": "Lucas's Team",
+    "progress": 75,
+    "totalHours": 120,
+    "hourlyRate": 50
+  },
+  {
+    "id": "2",
+    "name": "Website Redesign",
+    "client": "Creative Inc.",
+    "progress": 45,
+    "totalHours": 80,
+    "hourlyRate": 65
+  }
+]
+```
+
+**4. Styling:**
+   - Use Tailwind CSS for styling.
+   - The design should be clean, modern, and intuitive.
+   - Ensure the layout is responsive and works well on different screen sizes.
+```

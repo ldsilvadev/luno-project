@@ -3,10 +3,12 @@
 import { ReactNode, useEffect, useState } from "react";
 import { AuthContext, TUser } from "../contexts/AuthContext";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<TUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const storedToken = Cookies.get("token");
@@ -34,6 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(null);
     Cookies.remove("token");
     localStorage.removeItem("luno:user");
+    router.push("/login");
   };
 
   const isAuthenticated = !!token;

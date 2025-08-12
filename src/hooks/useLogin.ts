@@ -32,7 +32,7 @@ export function useLogin() {
       if (res.ok) {
         toast.success("Login realizado com sucesso!");
         login(responseData.token, responseData.user);
-        route.push("/");
+        route.push("/dashboard");
       } else {
         toast.error(responseData.message);
       }

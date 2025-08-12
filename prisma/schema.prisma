@@ -13,11 +13,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ProjectStatus {
+  in_progress
+  completed
+}
+
 model User {
-  id        String   @id @default(uuid())
-  user_name String   @unique
-  email     String   @unique
+  id        String    @id @default(uuid())
+  user_name String    @unique
+  email     String    @unique
   password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+}
+
+model Project {
+  id          String        @id @default(uuid())
+  userId      String
+  name        String
+  description String
+  start_date  DateTime?
+  end_date    DateTime?
+  status      ProjectStatus @default(in_progress)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
