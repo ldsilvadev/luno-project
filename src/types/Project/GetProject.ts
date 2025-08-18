@@ -1,6 +1,6 @@
 export interface GetProject {
   id: string;
-  title: string;
+  name: string;
   description: string;
   status: string;
   start_date: Date;

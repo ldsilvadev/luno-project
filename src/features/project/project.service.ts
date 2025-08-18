@@ -29,6 +29,7 @@ export default class ProjectService {
 
   async updateProject(id: string, input: UpdateProjectInput, authenticatedUserId: string) {
     const existingProject = await prisma.project.findFirst({ where: { id, userId: authenticatedUserId } });
+    
     if (!existingProject) {
       throw new Error("Project not found");
     }
@@ -55,5 +56,15 @@ export default class ProjectService {
     });
 
     return projects;
+  }
+
+  async deleteProject(id: string, authenticatedUserId: string) {
+    const existingProject = await prisma.project.findFirst({ where: { id, userId: authenticatedUserId } });
+    
+    if (!existingProject) {
+      throw new Error("Project not found");
+    }
+
+    await prisma.project.delete({ where: { id } });
   }
 }

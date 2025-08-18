@@ -137,7 +137,7 @@ export function Sidebar() {
               icon={item.icon}
               text={item.text}
               href={item.href}
-              active={pathname === item.href}
+              active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
               expanded={expanded}
             />
           ))}

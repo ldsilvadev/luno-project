@@ -10,7 +10,7 @@ export default function PrivateLayout({
       <ModalProvider>
         <main className="w-full min-h-screen relative">
           <Sidebar />
-          <div className="w-full pr-6 pl-21.5 py-3">
+          <div className="w-full pl-16">
             {children}
           </div>
         </main>
