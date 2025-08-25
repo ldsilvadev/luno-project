@@ -19,6 +19,7 @@ import {
 import { GetProject } from "@/types";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { sanitizeHtml } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: GetProject;
@@ -50,14 +51,14 @@ export function ProjectCard({
         return (
           <div className="flex items-center gap-2">
             <PlayCircle className="w-4 h-4 text-indigo-200" />
-            <span>Em andamento</span>
+            <span className="text-sm">Em andamento</span>
           </div>
         );
       case "completed":
         return (
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-lime-200" />
-            <span>Concluido</span>
+            <span className="text-sm">Concluido</span>
           </div>
         );
       default:
@@ -66,7 +67,7 @@ export function ProjectCard({
   };
 
   return (
-    <div className="min-w-full md:min-w-md flex flex-col border border-indigo-100 rounded bg-gradient-to-br from-primary to-primary/20 m-0">
+    <div className="min-w-full md:min-w-md flex flex-col border border-indigo-100 rounded bg-gradient-to-br from-foreground/25 to-background m-0">
       <div className="flex w-full items-center justify-between px-4 pt-2">
         {handleStatus(project.status)}
         <div>
@@ -84,17 +85,31 @@ export function ProjectCard({
                 <Edit className="mr-2 h-4 w-4" /> Editar
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete?.(project.id)} className="text-red-600 focus:text-red-600">
+              <DropdownMenuItem
+                onClick={() => onDelete?.(project.id)}
+                className="text-red-600 focus:text-red-600"
+              >
                 <Trash2 className="mr-2 h-4 w-4" /> Excluir
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-      <div className="w-full px-4 pb-4">
+      <div className="w-full px-4 pb-1">
         <span className="text-lg font-bold">{project.name}</span>
       </div>
-      <div className="w-full py-3 px-4 bg-gradient-to-br from-indigo-900 to-indigo-200">
+      {project.description && (
+        <div
+          className="px-4 pb-3 text-xs text-foreground max-w-48 overflow-hidden text-ellipsis whitespace-nowrap"
+          title={sanitizeHtml(project.description || "").replace(
+            /<[^>]+>/g,
+            ""
+          )}
+        >
+          {sanitizeHtml(project.description || "").replace(/<[^>]+>/g, "")}
+        </div>
+      )}
+      <div className="w-full py-3 px-4 bg-gradient-to-br from-foreground/60 to-foreground/10">
         <div className="flex gap-5 items-center flex-wrap">
           <div className="flex gap-1 items-center">
             <Play className="w-4 h-4 text-indigo-100 text-xs" />

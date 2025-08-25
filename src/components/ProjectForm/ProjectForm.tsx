@@ -17,7 +17,7 @@ type FormProps = {
 };
 
 export function ProjectForm({ initialValues, onSuccess }: FormProps) {
-  const { errors, handleSubmit, isSubmitting, handleCreateProject, register } =
+  const { errors, handleSubmit, isSubmitting, handleCreateProject, register, errorDescription } =
     useProjectForm(initialValues, onSuccess);
 
   return (
@@ -40,6 +40,7 @@ export function ProjectForm({ initialValues, onSuccess }: FormProps) {
           register={register("description")}
           defaultValue={initialValues?.description || ""}
         />
+        {errorDescription && <span className="text-red-400">Informe uma descrição para o projeto</span>}
         <span className="text-red-400">{errors.description?.message}</span>
       </div>
       <div className="w-full flex flex-col md:flex-row gap-1 md:gap-2">

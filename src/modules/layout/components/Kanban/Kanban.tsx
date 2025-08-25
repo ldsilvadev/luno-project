@@ -1,192 +1,281 @@
 "use client";
-
-import { 
-  EllipsisVertical, 
-  Calendar, 
-  User, 
-  AlertCircle, 
-  Plus,
-  Clock,
-  CheckCircle,
-  Pause,
-  Search
-} from "lucide-react";
-import { useKanban } from "@/hooks";
-import { Task, TaskStatus } from "@/types";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import {
+  KanbanBoard,
+  KanbanCard,
+  KanbanCards,
+  KanbanHeader,
+  KanbanProvider,
+} from "@/components/ui/kibo-ui/kanban";
+import type { DragStartEvent as DndDragStartEvent } from "@dnd-kit/core";
+import { useDelete, useGet } from "@/hooks";
+import { Eye, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { useModal } from "@/modules";
+import { TaskForm } from "@/components";
+import toast from "react-hot-toast";
+import type { TaskStatus } from "@/features/task/task.types";
+import { sanitizeHtml } from "@/lib/utils";
 
-interface KanbanProps {
-  initialTasks?: Task[];
-  onTaskClick?: (task: Task) => void;
-  onCreateTask?: (status: TaskStatus) => void;
-}
+type ApiTask = {
+  id: string;
+  name: string;
+  description?: string | null;
+  status: TaskStatus;
+  projectId: string;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+};
 
-const COLUMN_CONFIG = {
-  em_analise: {
-    title: "Em Análise",
-    icon: Search,
-    gradient: "from-indigo-900 to-indigo-200",
-    bgColor: "bg-indigo-50",
-    textColor: "text-indigo-100"
-  },
-  em_desenvolvimento: {
-    title: "Em Desenvolvimento", 
-    icon: Clock,
-    gradient: "from-blue-900 to-blue-200",
-    bgColor: "bg-blue-50",
-    textColor: "text-blue-100"
-  },
-  pausada: {
-    title: "Pausada",
-    icon: Pause,
-    gradient: "from-orange-900 to-orange-200", 
-    bgColor: "bg-orange-50",
-    textColor: "text-orange-100"
-  },
-  concluida: {
-    title: "Concluída",
-    icon: CheckCircle,
-    gradient: "from-green-900 to-green-200",
-    bgColor: "bg-green-50", 
-    textColor: "text-green-100"
-  }
-} as const;
+// App-wide consistent colors
+const columns = [
+  { id: "todo" as TaskStatus, name: "A Fazer", color: "#A5B4FC" },
+  { id: "in_progress" as TaskStatus, name: "Em Progresso", color: "#6366F1" },
+  { id: "completed" as TaskStatus, name: "Concluídas", color: "#10B981" },
+];
 
-const PRIORITY_CONFIG = {
-  baixa: { color: "bg-green-500", label: "Baixa" },
-  media: { color: "bg-yellow-500", label: "Média" },
-  alta: { color: "bg-orange-500", label: "Alta" },
-  critica: { color: "bg-red-500", label: "Crítica" }
-} as const;
+type KanbanProps = {
+  projectId: string;
+  refetch?: () => void; // refetch do projeto (mantido para compatibilidade)
+  provideRefetch?: (fn: () => void) => void; // expõe o refetch das tarefas para o pai
+};
 
-export function Kanban({ 
-  initialTasks = [], 
-  onTaskClick,
-  onCreateTask 
-}: KanbanProps) {
-  const { columns } = useKanban(initialTasks);
+export function Kanban({ projectId, provideRefetch }: KanbanProps) {
+  const endpoint = projectId ? `/api/tasks/projectId/${projectId}` : null;
+  const {
+    data,
+    isLoading,
+    refetch: refetchTasks,
+  } = useGet<ApiTask[]>(endpoint);
+  const { openModal } = useModal();
+  const { handleDelete } = useDelete({
+    endPoint: "/api/tasks",
+    onSuccess: refetchTasks,
+  });
 
-  const formatDate = (date?: string | Date) => {
-    if (!date) return "";
-    const d = new Date(date);
-    if (isNaN(d.getTime())) return "";
-    return format(d, "dd/MM", { locale: ptBR });
+  useEffect(() => {
+    if (provideRefetch) {
+      provideRefetch(refetchTasks);
+    }
+  }, [provideRefetch, refetchTasks]);
+
+  const initial = useMemo(
+    () =>
+      [] as Array<{
+        id: string;
+        name: string;
+        column: TaskStatus;
+        description?: string | null;
+      }>,
+    []
+  );
+  const [features, setFeatures] = useState<
+    Array<{
+      id: string;
+      name: string;
+      column: TaskStatus;
+      description?: string | null;
+    }>
+  >(initial);
+
+  useEffect(() => {
+    if (!data) return;
+    const mapped = data.map((t) => ({
+      id: t.id,
+      name: t.name,
+      column: t.status,
+      description: t.description,
+    }));
+    setFeatures(mapped);
+  }, [data]);
+
+  const handleEditTask = (task: {
+    id: string;
+    name: string;
+    description?: string | null;
+    column: TaskStatus;
+  }) => {
+    const initialValues = {
+      id: task.id,
+      name: task.name,
+      description: task.description || "",
+      status: task.column,
+    };
+
+    openModal({
+      title: "Visualizar Tarefa",
+      description: "Você pode visualizar e editar os dados da tarefa",
+      content: (
+        <TaskForm
+          initialValues={initialValues}
+          projectId={projectId}
+          onSuccess={refetchTasks}
+        />
+      ),
+    });
   };
 
-  const renderTaskCard = (task: Task) => {
-    const priorityConfig = task.priority ? PRIORITY_CONFIG[task.priority] : null;
-    const isOverdue = task.dueDate && new Date(task.dueDate) < new Date();
+  const dragStartRef = useRef<{ id: string; from: TaskStatus } | null>(null);
 
-    return (
-      <div
-        key={task.id}
-        onClick={() => onTaskClick?.(task)}
-        className="bg-card border border-border rounded-lg p-4 mb-3 cursor-pointer hover:shadow-md transition-all duration-200 hover:border-primary/30"
-      >
-        {/* Task Header */}
-        <div className="flex items-start justify-between mb-2">
-          <h4 className="font-semibold text-card-foreground text-sm leading-5 line-clamp-2">
-            {task.title}
-          </h4>
-          {priorityConfig && (
-            <div className={`w-2 h-2 rounded-full ${priorityConfig.color} shrink-0 ml-2 mt-1`} />
-          )}
-        </div>
+  const changeCardStatus = useCallback(
+    async (
+      taskId: string,
+      newStatus: TaskStatus,
+      previousStatus: TaskStatus
+    ) => {
+      try {
+        const response = await fetch(`/api/tasks/change-status/${taskId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
 
-        {task.description && (
-          <p className="text-muted-foreground text-xs mb-3 line-clamp-2">
-            {task.description}
-          </p>
-        )}
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          const message = error?.message || "Erro ao mudar o status da tarefa";
+          throw new Error(message);
+        }
+      } catch (err) {
+        setFeatures((prev) =>
+          prev.map((item) =>
+            item.id === taskId ? { ...item, column: previousStatus } : item
+          )
+        );
+        console.error(err);
+        toast.error("Erro de conexão. Tente novamente.");
+      }
+    },
+    [setFeatures]
+  );
 
-        {/* Task Footer */}
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2">
-            {task.assignee && (
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <User className="w-3 h-3" />
-                <span className="truncate max-w-[80px]">{task.assignee}</span>
-              </div>
-            )}
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {task.dueDate && (
-              <div className={`flex items-center gap-1 ${
-                isOverdue ? 'text-destructive' : 'text-muted-foreground'
-              }`}>
-                <Calendar className="w-3 h-3" />
-                <span>{formatDate(task.dueDate)}</span>
-                {isOverdue && <AlertCircle className="w-3 h-3" />}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const handleDragStart = useCallback(
+    (event: DndDragStartEvent) => {
+      const activeId = String(event.active.id);
+      const card = features.find((f) => f.id === activeId);
+      if (!card) return;
+      dragStartRef.current = { id: activeId, from: card.column };
+    },
+    [features]
+  );
 
-  const renderColumn = (status: TaskStatus) => {
-    const config = COLUMN_CONFIG[status];
-    const tasks = columns[status];
-    const IconComponent = config.icon;
+  const handleDragEnd = useCallback(async () => {
+    const start = dragStartRef.current;
+    dragStartRef.current = null;
+    if (!start) return;
 
-    return (
-      <div key={status} className="flex flex-col h-full">
-        {/* Column Header */}
-        <div className={`bg-gradient-to-br ${config.gradient} rounded-lg p-4 mb-4 shadow-sm`}>
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <IconComponent className={`w-5 h-5 ${config.textColor}`} />
-              <span className={`text-lg font-bold ${config.textColor}`}>
-                {config.title}
-              </span>
-            </div>
-            <EllipsisVertical className={`w-5 h-5 ${config.textColor}`} />
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className={`text-sm ${config.textColor}/80`}>
-              {tasks.length} {tasks.length === 1 ? 'tarefa' : 'tarefas'}
-            </span>
-            
-            {onCreateTask && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onCreateTask(status)}
-                className={`h-7 w-7 p-0 ${config.textColor} hover:bg-white/20`}
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        </div>
+    const current = features.find((f) => f.id === start.id);
+    if (!current) return;
 
-        {/* Tasks Container */}
-        <div className="flex-1 min-h-[400px] space-y-0">
-          {tasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-              <IconComponent className="w-8 h-8 mb-2 opacity-40" />
-              <p className="text-sm">Nenhuma tarefa</p>
-            </div>
-          ) : (
-            <div className="space-y-0">
-              {tasks.map(renderTaskCard)}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
+    const movedTo = current.column;
+    if (movedTo === start.from) return; // apenas reordenação, sem mudança de coluna
+
+    await changeCardStatus(start.id, movedTo, start.from);
+  }, [features, changeCardStatus]);
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {(Object.keys(COLUMN_CONFIG) as TaskStatus[]).map(renderColumn)}
-      </div>
+      {isLoading ? (
+        <div className="text-sm text-foreground/40">Carregando tarefas...</div>
+      ) : (
+        <KanbanProvider
+          columns={columns}
+          data={features}
+          onDataChange={setFeatures}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          {(column) => (
+            <KanbanBoard
+              id={column.id}
+              key={column.id}
+              className="bg-gradient-to-tl from-foreground/25 to-background"
+            >
+              <KanbanHeader>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: column.color }}
+                  />
+                  <span>{column.name}</span>
+                </div>
+              </KanbanHeader>
+              <KanbanCards id={column.id}>
+                {(feature: (typeof features)[number]) => (
+                  <KanbanCard
+                    column={column.id}
+                    id={feature.id}
+                    key={feature.id}
+                    name={feature.name}
+                    className="bg-gradient-to-br from-foreground/40 to-background/30 text-background border-foreground/60 hover:shadow-lg transition-shadow duration-200"
+                  >
+                    <div className="flex items-start justify-between gap-2 p-3">
+                      <div className="flex flex-col gap-2 flex-1">
+                        <p className="m-0 font-semibold text-sm leading-tight text-white">
+                          {feature.name}
+                        </p>
+                        {feature.description && (
+                          <div
+                            className="m-0 text-xs text-indigo-100 leading-relaxed"
+                            style={{
+                              display: "-webkit-box",
+                              WebkitLineClamp: 3,
+                              WebkitBoxOrient: "vertical" as const,
+                              overflow: "hidden",
+                            }}
+                            dangerouslySetInnerHTML={{
+                              __html: sanitizeHtml(feature.description || ""),
+                            }}
+                          />
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          aria-label="Visualizar/Editar tarefa"
+                          title="Visualizar/Editar"
+                          className="h-6 w-6 p-0 text-indigo-100 hover:text-white hover:bg-indigo-800/50"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditTask(feature);
+                          }}
+                        >
+                          <Eye className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          type="button"
+                          aria-label="Excluir tarefa"
+                          title="Excluir"
+                          className="h-6 w-6 p-0 text-red-100 hover:text-white hover:bg-red-800/50"
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(feature.id);
+                          }}
+                        >
+                          <Trash className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </KanbanCard>
+                )}
+              </KanbanCards>
+              {features.filter((f) => f.column === column.id).length === 0 && (
+                <div
+                  className="p-3 text-xs text-foreground/50 italic text-center"
+                  aria-live="polite"
+                >
+                  Não há tarefas nesta coluna.
+                </div>
+              )}
+            </KanbanBoard>
+          )}
+        </KanbanProvider>
+      )}
     </div>
   );
 }

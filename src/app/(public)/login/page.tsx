@@ -20,7 +20,7 @@ export default function LoginPage() {
           <span className="text-2xl text-foreground font-semibold">
             Entrar na sua conta
           </span>
-          <span className=" text-gray-300 font-semibold">
+          <span className="text-foreground font-light">
             Bem vindo! Preencha suas credênciais
           </span>
         </div>
@@ -61,7 +61,7 @@ export default function LoginPage() {
             {isSubmitting ? "Entrando..." : "Entrar"}
           </Button>
         </form>
-        <span className="text-gray-300 text-sm">
+        <span className="text-foreground font-light">
           Não possui uma conta?{" "}
           <Link href="/register" className="text-foreground font-semibold">
             Cadastrar-se

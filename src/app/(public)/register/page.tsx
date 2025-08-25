@@ -11,14 +11,14 @@ export default function RegisterPage() {
     useCreateUser();
 
   return (
-    <main className="w-full h-screen flex justify-center bg-background">
+    <main className="w-full h-screen flex justify-center">
       <section className="w-md h-auto flex items-center flex-col gap-6 py-10">
         <Image src="/logo.svg" alt="logo" width={130} height={130} />
         <div className="w-full flex flex-col items-center justify-center">
           <span className="text-2xl text-foreground font-semibold">
             Criar sua conta
           </span>
-          <span className=" text-gray-300 font-semibold">
+          <span className=" text-foreground font-light">
             Crie e gerencie seus projetos de forma rápida
           </span>
         </div>
@@ -55,7 +55,7 @@ export default function RegisterPage() {
             {isSubmitting ? "Criando..." : "Criar sua conta"}
           </Button>
         </form>
-        <span className="text-gray-300 text-sm">
+        <span className="text-foreground font-light">
           Já possui uma conta?{" "}
           <Link href="/login" className="text-foreground font-semibold">
             Faça login

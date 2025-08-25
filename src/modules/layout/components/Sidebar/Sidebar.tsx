@@ -47,8 +47,8 @@ function SidebarItem({
           transition-colors group
           ${
             active
-              ? "bg-gradient-to-tr from-indigo-200 to-indigo-100 text-primary"
-              : "hover:bg-foreground text-foreground hover:text-primary"
+              ? "bg-gradient-to-l from-foreground/35 to-foreground/10 text-foreground"
+              : "hover:bg-foreground/40 text-foreground hover:text-background"
           }
         `}
       >
@@ -64,7 +64,7 @@ function SidebarItem({
           <div
             className={`
               absolute left-full rounded-md px-2 py-1 ml-6
-              bg-indigo-100 text-indigo-800 text-sm
+              bg-background text-foreground text-sm
               invisible opacity-20 -translate-x-3 transition-all
               group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
             `}
@@ -107,12 +107,12 @@ export function Sidebar() {
 
   return (
     <aside
-      className={`h-screen fixed left-0 top-0 z-50 transition-all duration-300 ${
+      className={`h-screen fixed left-0 top-0 z-50  transition-all duration-300 ${
         expanded ? "w-64" : "w-16"
       }`}
     >
-      <nav className="h-full flex flex-col bg-primary border-r shadow-lg">
-        <div className="p-4 pb-2 flex justify-between items-center">
+      <nav className="h-full flex flex-col bg-background border-r shadow-lg bg-gradient-to-b from-foreground/25 to-background">
+        <div className="p-4 pl-3.5 pb-2 flex justify-between items-center">
           <Image
             src="/logo.svg"
             alt="logo"
@@ -124,7 +124,7 @@ export function Sidebar() {
           />
           <button
             onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 rounded-lg bg-background hover:bg-background/80"
+            className="p-1.5 rounded-lg bg-background bg-gradient-to-b from-foreground/25 to-background hover:bg-background/20"
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>

@@ -1,74 +1,54 @@
 "use client";
 
+import { useModal } from "@/modules";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { TaskStatus } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
 import z from "zod";
-import { useModal } from "@/modules";
-import { useState } from "react";
 
-const projectFormSchema = z.object({
-  name: z.string().min(3, "Você deve preencher o nome do projeto"),
-  description: z.string().min(3, "Informe uma descrição para o projeto"),
-  start_date: z.string().min(1, "Informe a data de início"),
-  end_date: z.string().min(1, "Informe a data de término"),
+const taskFormSchema = z.object({
+  name: z.string().min(3, "Você deve preencher o nome da tarefa"),
+  description: z.string().min(3, "Informe uma descrição para a tarefa"),
+  status: z.enum(["todo", "in_progress", "completed"]).optional(),
 });
 
-type ProjectFormValues = z.infer<typeof projectFormSchema>;
+type TaskFormSchema = z.infer<typeof taskFormSchema>;
 
-export function useProjectForm(
+export function useTaskForm(
   initialValues?: {
     id?: string;
     name: string;
     description: string;
-    start_date?: string | Date;
-    end_date?: string | Date;
+    status?: TaskStatus;
   },
+  projectId?: string,
   onSuccess?: () => void
 ) {
-  const router = useRouter();
   const { closeModal } = useModal();
+  const router = useRouter();
   const [errorDescription, setErrorDescription] = useState<string | null>(null);
-
-  const toDateInput = (value?: string | Date) => {
-    if (!value) return "";
-    const d = new Date(value);
-    return isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
-  };
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ProjectFormValues>({
+  } = useForm<TaskFormSchema>({
     defaultValues: {
       name: initialValues?.name || "",
       description: initialValues?.description || "",
-      start_date: toDateInput(initialValues?.start_date),
-      end_date: toDateInput(initialValues?.end_date),
+      status: initialValues?.status || "todo",
     },
-    resolver: zodResolver(projectFormSchema),
+    resolver: zodResolver(taskFormSchema),
   });
 
-  async function handleCreateProject(data: ProjectFormValues) {
+  async function handleCreateTask(data: TaskFormSchema) {
     try {
-      const start = new Date(data.start_date);
-      const end = new Date(data.end_date);
-
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        toast.error("Datas inválidas. Verifique os campos de data.");
-        return;
-      }
-
-      if (start > end || end < start) {
-        toast.error("Datas inconsistentes. Verifique os campos de data.");
-        return;
-      }
-
       if (data.description === "<p><br></p>") {
         data.description = "";
-        setErrorDescription("Informe uma descrição para o projeto");
+        setErrorDescription("Informe uma descrição para a tarefa");
         return;
       } else {
         setErrorDescription(null);
@@ -77,12 +57,11 @@ export function useProjectForm(
       const payload = {
         name: data.name,
         description: data.description,
-        start_date: start.toISOString(),
-        end_date: end.toISOString(),
+        status: data.status,
       };
 
       if (initialValues?.id) {
-        const res = await fetch(`/api/projects/${initialValues.id}`, {
+        const res = await fetch(`/api/tasks/${initialValues.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -91,7 +70,7 @@ export function useProjectForm(
         });
 
         if (res.ok) {
-          toast.success("Projeto editado com sucesso!");
+          toast.success("Tarefa editada com sucesso!");
           onSuccess?.();
           closeModal();
         } else {
@@ -103,20 +82,20 @@ export function useProjectForm(
           } else if (res.status === 400 && error.errors) {
             toast.error("Dados inválidos. Verifique os campos obrigatórios.");
           } else {
-            toast.error(error.message || "Erro ao criar projeto");
+            toast.error(error.message || "Erro ao criar tarefa");
           }
         }
       } else {
-        const res = await fetch("/api/projects", {
+        const res = await fetch("/api/tasks", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ projectId: projectId, ...payload }),
         });
 
         if (res.ok) {
-          toast.success("Projeto criado com sucesso!");
+          toast.success("Tarefa criada com sucesso!");
           onSuccess?.();
           closeModal();
         } else {
@@ -139,7 +118,7 @@ export function useProjectForm(
   }
 
   return {
-    handleCreateProject,
+    handleCreateTask,
     register,
     handleSubmit,
     errors,

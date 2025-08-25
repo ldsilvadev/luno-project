@@ -56,18 +56,18 @@ export default function Projetos() {
 
   return (
     <section className="w-full">
-      <header className="w-full bg-primary  border-b border-indigo-100">
+      <header className="w-full bg-background bg-gradient-to-r from-foreground/25 to-foreground/15  border-b border-indigo-100">
         <div className="px-6 lg:px-10 py-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-indigo-500 to-indigo-100 rounded-xl shadow-lg">
-                <AppWindow size={24} className="text-background" />
+              <div className="p-2 bg-gradient-to-br from-foreground/25 to-background rounded-xl shadow-lg">
+                <AppWindow size={24} className="text-foreground/60" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-100 bg-clip-text text-transparent">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground/70 to-foreground/30 bg-clip-text text-transparent">
                   Seus Projetos
                 </h1>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-foreground/40">
                   {data?.length
                     ? `${data.length} projeto${
                         data.length > 1 ? "s" : ""
@@ -80,7 +80,7 @@ export default function Projetos() {
             <div className="hidden lg:flex items-center gap-3">
               <Button
                 onClick={handleCreateProject}
-                className="bg-gradient-to-r from-indigo-600 to-indigo-100 hover:from-indigo-600 hover:to-indigo-700 text-background shadow-lg hover:shadow-xl transition-all duration-300"
+                className="bg-gradient-to-r from-foreground/60 to-foreground/30 hover:from-foreground/60 hover:to-foreground/40 text-background shadow-lg hover:shadow-xl transition-all duration-300"
               >
                 <Plus size={18} className="mr-1" />
                 Novo Projeto
@@ -88,7 +88,7 @@ export default function Projetos() {
               <Button
                 onClick={handleCreateWithAI}
                 variant="outline"
-                className="border-2 border-purple-200 hover:bg-gradient-to-r hover:from-purple-50 hover:to-indigo-50 transition-all duration-300 group"
+                className="border-foreground/60 hover:bg-gradient-to-r hover:from-background/10 hover:to-foreground/10 transition-all duration-300 group"
               >
                 <Sparkles size={18} className="mr-1" />
                 Com IA
@@ -124,8 +124,8 @@ export default function Projetos() {
                       flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200
                       ${
                         activeFilter === key
-                          ? "bg-indigo-100 text-background shadow-sm"
-                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+                          ? "bg-gradient-to-r from-foreground/60 to-foreground/30 text-background shadow-sm"
+                          : "text-gray-600 hover:text-foreground hover:bg-foreground/10"
                       }
                     `}
                   >
@@ -167,7 +167,7 @@ export default function Projetos() {
           <div className="flex lg:hidden gap-2 mt-4">
             <Button
               onClick={handleCreateProject}
-              className="flex-1 bg-gradient-to-r from-indigo-600 to-indigo-100 hover:from-indigo-600 hover:to-indigo-700 text-background shadow-lg hover:shadow-xl transition-all duration-300"
+              className="flex-1 bg-gradient-to-r from-foreground/60 to-foreground/30 hover:from-foreground/60 hover:to-foreground/40 text-background shadow-lg hover:shadow-xl transition-all duration-300"
             >
               <Plus size={18} className="mr-1" />
               Novo Projeto
@@ -175,7 +175,7 @@ export default function Projetos() {
             <Button
               onClick={handleCreateWithAI}
               variant="outline"
-              className="flex-1 border-purple-200"
+              className="flex-1 border-foreground/60 hover:bg-gradient-to-r hover:from-background/10 hover:to-foreground/10 transition-all duration-300"
             >
               <Sparkles size={18} className="mr-1" />
               Com IA
@@ -184,15 +184,16 @@ export default function Projetos() {
         </div>
       </header>
 
-      <div className="w-full flex flex-col items-center justify-center mt-10 px-6 md:px-10">
+      <div className="w-full flex justify-center mt-10 px-6 md:px-10">
         {isLoading ? (
           <div className="w-full flex items-start flex-wrap">
             <Loader count={3} />
           </div>
         ) : data?.length ? (
-          data.map((project) => (
-            <div key={project.id} className="w-full flex items-start flex-wrap">
+          <div className="w-full flex items-start gap-6 flex-wrap">
+            {data.map((project) => (
               <ProjectCard
+                key={project.id}
                 project={project}
                 onView={(p) => router.push(`/projetos/${p.id}`)}
                 onEdit={() =>
@@ -209,8 +210,8 @@ export default function Projetos() {
                 }
                 onDelete={() => handleDelete(project.id)}
               />
-            </div>
-          ))
+            ))}
+          </div>
         ) : (
           <NotFound />
         )}

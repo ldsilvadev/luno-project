@@ -18,15 +18,15 @@ export function NotFound() {
     <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center">
       <div className="relative mb-3">
         <div className="w-32 h-32 flex items-center justify-center ">
-          <Rocket size={64} className="text-indigo-100 animate-pulse" />
+          <Rocket size={64} className="text-foreground/40 animate-pulse" />
         </div>
       </div>
 
       <div className="space-y-4 mb-8 max-w-md">
-        <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-indigo-100 bg-clip-text text-transparent">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground/70 to-foreground/30 bg-clip-text text-transparent">
           Hora de começar algo incrível!
         </h2>
-        <p className="text-muted-foreground text-base leading-relaxed">
+        <p className="text-foreground/40 text-base leading-relaxed">
           Seus projetos aparecerão aqui. Que tal criar o primeiro e dar vida às
           suas ideias?
         </p>
@@ -36,7 +36,7 @@ export function NotFound() {
       <div className="flex flex-col sm:flex-row gap-3 w-full max-w-sm">
         <Button
           onClick={handleCreateProject}
-          className="flex-1 bg-gradient-to-r from-indigo-400 to-indigo-100 hover:from-indigo-500 hover:to-indigo-200 text-background shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+          className="flex-1 bg-gradient-to-r from-foreground/60 to-foreground/30 hover:from-foreground/60 hover:to-foreground/40 text-background shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
         >
           <Plus size={18} className="mr-1" />
           Criar Primeiro Projeto
@@ -44,7 +44,7 @@ export function NotFound() {
 
         <Button
           variant="outline"
-          className="flex-1 border-2 border-gradient-to-r from-indigo-200 to-purple-200 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-300"
+          className="flex-1 border-foreground/60 hover:bg-gradient-to-r hover:from-background/10 hover:to-foreground/10 transition-all duration-300"
         >
           <Sparkles size={18} className="mr-1" />
           Com IA
