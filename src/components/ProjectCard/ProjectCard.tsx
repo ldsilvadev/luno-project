@@ -5,8 +5,8 @@ import {
   CheckCircle,
   PlayCircle,
   EllipsisVertical,
-  Play,
-  X,
+  Calendar,
+  CalendarCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { GetProject } from "@/types";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
 import { sanitizeHtml } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -42,89 +41,115 @@ export function ProjectCard({
       d.getUTCMonth(),
       d.getUTCDate()
     );
-    return format(localDateOnly, "dd 'de' MMM 'de' yyyy", { locale: ptBR });
+    return format(localDateOnly, "dd/MM/yyyy");
   };
 
   const handleStatus = (status: string) => {
     switch (status) {
       case "in_progress":
         return (
-          <div className="flex items-center gap-2">
-            <PlayCircle className="w-4 h-4 text-indigo-200" />
-            <span className="text-sm">Em andamento</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-200">
+            <PlayCircle className="w-4 h-4" />
+            <span className="text-xs font-medium">Em andamento</span>
           </div>
         );
       case "completed":
         return (
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-lime-200" />
-            <span className="text-sm">Concluido</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 text-green-700 rounded-full border border-green-200">
+            <CheckCircle className="w-4 h-4" />
+            <span className="text-xs font-medium">Concluído</span>
           </div>
         );
       default:
-        return "Novo";
+        return (
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 text-gray-700 rounded-full border border-gray-200">
+            <span className="text-xs font-medium">Novo</span>
+          </div>
+        );
     }
   };
 
   return (
-    <div className="min-w-full md:min-w-md flex flex-col border border-indigo-100 rounded bg-gradient-to-br from-foreground/25 to-background m-0">
-      <div className="flex w-full items-center justify-between px-4 pt-2">
-        {handleStatus(project.status)}
-        <div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Ações do projeto">
-                <EllipsisVertical />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => onView?.(project)}>
-                <ExternalLink className="mr-2 h-4 w-4" /> Visualizar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit?.(project)}>
-                <Edit className="mr-2 h-4 w-4" /> Editar
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={() => onDelete?.(project.id)}
-                className="text-red-600 focus:text-red-600"
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Excluir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="group w-full max-w-sm bg-background/50 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-foreground/20 overflow-hidden">
+      <div className="flex items-start justify-between p-4 sm:p-6 pb-3 sm:pb-4">
+        <div className="flex-1">
+          {handleStatus(project.status)}
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-gray-100"
+              aria-label="Ações do projeto"
+            >
+              <EllipsisVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem onClick={() => onView?.(project)} className="cursor-pointer">
+              <ExternalLink className="mr-2 h-4 w-4" /> Visualizar
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onEdit?.(project)} className="cursor-pointer">
+              <Edit className="mr-2 h-4 w-4" /> Editar
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onDelete?.(project.id)}
+              className="text-red-600 focus:text-red-600 cursor-pointer"
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Excluir
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <div className="w-full px-4 pb-1">
-        <span className="text-lg font-bold">{project.name}</span>
-      </div>
-      {project.description && (
-        <div
-          className="px-4 pb-3 text-xs text-foreground max-w-48 overflow-hidden text-ellipsis whitespace-nowrap"
-          title={sanitizeHtml(project.description || "").replace(
-            /<[^>]+>/g,
-            ""
-          )}
-        >
-          {sanitizeHtml(project.description || "").replace(/<[^>]+>/g, "")}
-        </div>
-      )}
-      <div className="w-full py-3 px-4 bg-gradient-to-br from-foreground/60 to-foreground/10">
-        <div className="flex gap-5 items-center flex-wrap">
-          <div className="flex gap-1 items-center">
-            <Play className="w-4 h-4 text-indigo-100 text-xs" />
-            <span className="text-indigo-100 text-xs">
-              {formatDate(project.start_date as unknown as Date)}
+
+      {/* Conteúdo principal */}
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+        <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 line-clamp-2 leading-tight">
+          {project.name}
+        </h3>
+        
+        {project.description && (
+          <p
+            className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 line-clamp-3 leading-relaxed"
+            title={sanitizeHtml(project.description || "").replace(
+              /<[^>]+>/g,
+              ""
+            )}
+          >
+            {sanitizeHtml(project.description || "").replace(/<[^>]+>/g, "")}
+          </p>
+        )}
+
+        {/* Datas com ícones específicos */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-2 text-emerald-600">
+              <div className="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
+                <Calendar className="w-3 h-3 text-emerald-600" />
+              </div>
+              <span className="font-semibold text-xs">Início</span>
+            </div>
+            <span className="text-foreground/80 font-medium flex-1 text-right">
+              {formatDate(project.start_date as unknown as Date) || 'Não definido'}
             </span>
           </div>
-          <div className="flex gap-1 items-center">
-            <X className="w-4 h-4 text-indigo-100 text-xs" />
-            <span className="text-indigo-100 text-xs">
-              {formatDate(project.end_date as unknown as Date)}
+          
+          <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center gap-2 text-rose-600">
+              <div className="w-6 h-6 bg-rose-100 rounded-full flex items-center justify-center">
+                <CalendarCheck className="w-3 h-3 text-rose-600" />
+              </div>
+              <span className="font-semibold text-xs">Fim</span>
+            </div>
+            <span className="text-foreground/80 font-medium flex-1 text-right">
+              {formatDate(project.end_date as unknown as Date) || 'Não definido'}
             </span>
           </div>
         </div>
       </div>
+
     </div>
   );
 }

@@ -40,6 +40,7 @@ export function useProjectForm(
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ProjectFormValues>({
     defaultValues: {
@@ -51,28 +52,95 @@ export function useProjectForm(
     resolver: zodResolver(projectFormSchema),
   });
 
+  const validateDates = (data: ProjectFormValues) => {
+    const start = new Date(data.start_date);
+    const end = new Date(data.end_date);
+
+    if (isNaN(start.getTime())) {
+      setError("start_date", {
+        type: "manual",
+        message: "Data de início inválida",
+      });
+      return false;
+    }
+
+    if (isNaN(end.getTime())) {
+      setError("end_date", {
+        type: "manual",
+        message: "Data de término inválida",
+      });
+      return false;
+    }
+
+    if (start > end) {
+      // Mostrar toast e marcar campos com erro visual (sem mensagem)
+      toast.error("A data de início deve ser anterior ou igual à data de término");
+      setError("start_date", {
+        type: "manual",
+        message: "", // Sem mensagem para não aparecer abaixo do input
+      });
+      setError("end_date", {
+        type: "manual",
+        message: "", // Sem mensagem para não aparecer abaixo do input
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const validateDescription = (description: string) => {
+    if (description === "<p><br></p>" || description.trim() === "") {
+      setErrorDescription("Informe uma descrição para o projeto");
+      return false;
+    }
+    setErrorDescription(null);
+    return true;
+  };
+
+  const makeApiRequest = async (url: string, method: string, payload: ProjectFormValues) => {
+    const res = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      const successMessage = method === "PUT" ? "Projeto editado com sucesso!" : "Projeto criado com sucesso!";
+      toast.success(successMessage);
+      onSuccess?.();
+      closeModal();
+      return;
+    }
+
+    const error = await res.json();
+
+    if (res.status === 401) {
+      toast.error("Sessão expirada. Faça login novamente.");
+      router.push("/login");
+    } else if (res.status === 400 && error.errors) {
+      toast.error("Dados inválidos. Verifique os campos obrigatórios.");
+    } else {
+      toast.error(error.message || "Erro ao processar projeto");
+    }
+  };
+
   async function handleCreateProject(data: ProjectFormValues) {
     try {
+      // Validar descrição
+      if (!validateDescription(data.description)) {
+        return;
+      }
+
+      // Validar datas
+      if (!validateDates(data)) {
+        return;
+      }
+
       const start = new Date(data.start_date);
       const end = new Date(data.end_date);
-
-      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        toast.error("Datas inválidas. Verifique os campos de data.");
-        return;
-      }
-
-      if (start > end || end < start) {
-        toast.error("Datas inconsistentes. Verifique os campos de data.");
-        return;
-      }
-
-      if (data.description === "<p><br></p>") {
-        data.description = "";
-        setErrorDescription("Informe uma descrição para o projeto");
-        return;
-      } else {
-        setErrorDescription(null);
-      }
 
       const payload = {
         name: data.name,
@@ -81,57 +149,10 @@ export function useProjectForm(
         end_date: end.toISOString(),
       };
 
-      if (initialValues?.id) {
-        const res = await fetch(`/api/projects/${initialValues.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
+      const url = initialValues?.id ? `/api/projects/${initialValues.id}` : "/api/projects";
+      const method = initialValues?.id ? "PUT" : "POST";
 
-        if (res.ok) {
-          toast.success("Projeto editado com sucesso!");
-          onSuccess?.();
-          closeModal();
-        } else {
-          const error = await res.json();
-
-          if (res.status === 401) {
-            toast.error("Sessão expirada. Faça login novamente.");
-            router.push("/login");
-          } else if (res.status === 400 && error.errors) {
-            toast.error("Dados inválidos. Verifique os campos obrigatórios.");
-          } else {
-            toast.error(error.message || "Erro ao criar projeto");
-          }
-        }
-      } else {
-        const res = await fetch("/api/projects", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-
-        if (res.ok) {
-          toast.success("Projeto criado com sucesso!");
-          onSuccess?.();
-          closeModal();
-        } else {
-          const error = await res.json();
-
-          if (res.status === 401) {
-            toast.error("Sessão expirada. Faça login novamente.");
-            router.push("/login");
-          } else if (res.status === 400 && error.errors) {
-            toast.error("Dados inválidos. Verifique os campos obrigatórios.");
-          } else {
-            toast.error(error.message || "Erro ao criar projeto");
-          }
-        }
-      }
+      await makeApiRequest(url, method, payload);
     } catch (error) {
       console.error("Erro na requisição:", error);
       toast.error("Erro de conexão. Tente novamente.");
@@ -145,5 +166,6 @@ export function useProjectForm(
     errors,
     isSubmitting,
     errorDescription,
+    setError,
   };
 }

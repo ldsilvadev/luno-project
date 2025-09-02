@@ -184,36 +184,39 @@ export default function Projetos() {
         </div>
       </header>
 
-      <div className="w-full flex justify-center mt-10 px-6 md:px-10">
+      <div className="w-full mt-8 px-4 sm:px-6 lg:px-10">
         {isLoading ? (
-          <div className="w-full flex items-start flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             <Loader count={3} />
           </div>
         ) : data?.length ? (
-          <div className="w-full flex items-start gap-6 flex-wrap">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {data.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onView={(p) => router.push(`/projetos/${p.id}`)}
-                onEdit={() =>
-                  openModal({
-                    title: "Editar projeto",
-                    description: "Faça alterações em seu projeto",
-                    content: (
-                      <ProjectForm
-                        initialValues={project}
-                        onSuccess={refetch}
-                      />
-                    ),
-                  })
-                }
-                onDelete={() => handleDelete(project.id)}
-              />
+              <div key={project.id} className="flex justify-center">
+                <ProjectCard
+                  project={project}
+                  onView={(p) => router.push(`/projetos/${p.id}`)}
+                  onEdit={() =>
+                    openModal({
+                      title: "Editar projeto",
+                      description: "Faça alterações em seu projeto",
+                      content: (
+                        <ProjectForm
+                          initialValues={project}
+                          onSuccess={refetch}
+                        />
+                      ),
+                    })
+                  }
+                  onDelete={() => handleDelete(project.id)}
+                />
+              </div>
             ))}
           </div>
         ) : (
-          <NotFound />
+          <div className="flex justify-center">
+            <NotFound />
+          </div>
         )}
       </div>
     </section>

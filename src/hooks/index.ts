@@ -4,3 +4,5 @@ export * from "./useDelete";
 export * from "./useGet";
 export * from "./useKanban";
 export * from "./useTaskForm";
+export * from "./useRequestResetPassword";
+export * from "./useResetPassword";

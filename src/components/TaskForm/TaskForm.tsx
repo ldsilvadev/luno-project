@@ -3,6 +3,7 @@ import { RichText } from "../ui/rich-text";
 import { Button } from "../ui/button";
 import { useTaskForm } from "@/hooks";
 import { TaskStatus } from "@prisma/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 type FormProps = {
   initialValues?: {
@@ -22,8 +23,12 @@ export function TaskForm({ initialValues, onSuccess, projectId }: FormProps) {
     isSubmitting,
     handleCreateTask,
     register,
+    setValue,
+    watch,
     errorDescription,
   } = useTaskForm(initialValues, projectId, onSuccess);
+
+  const currentStatus = watch("status");
 
   return (
     <form
@@ -52,6 +57,26 @@ export function TaskForm({ initialValues, onSuccess, projectId }: FormProps) {
         )}
         <span className="text-red-400">{errors.description?.message}</span>
       </div>
+      {initialValues?.id && (
+        <div className="w-full flex flex-col gap-1">
+          <label>Status da Tarefa</label>
+          <Select
+             value={currentStatus}
+             onValueChange={(value) => {
+               setValue("status", value as TaskStatus);
+             }}
+           >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecione o status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todo">A Fazer</SelectItem>
+               <SelectItem value="in_progress">Em Andamento</SelectItem>
+               <SelectItem value="completed">Concluído</SelectItem>
+             </SelectContent>
+          </Select>
+        </div>
+      )}
       <Button type="submit" className="mt-1">
         {isSubmitting ? "Salvando..." : "Salvar"}
       </Button>

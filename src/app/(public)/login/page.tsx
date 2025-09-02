@@ -5,12 +5,26 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useLogin } from "@/hooks/useLogin";
+import { useModal } from "@/modules";
 import Image from "next/image";
 import Link from "next/link";
+import { ResetPasswordForm } from "./components/ResetPasswordForm";
 
 export default function LoginPage() {
   const { handleLogin, register, handleSubmit, errors, isSubmitting } =
     useLogin();
+  const { openModal } = useModal();
+
+
+
+  function handleOpenModal() {
+    openModal({
+      title: "Esqueceu sua senha?",
+      description:
+        "Informe seu e-mail para recuperar o acesso. Você receberá um link em sua caixa de entrada para redefinir sua senha.",
+      content: <ResetPasswordForm />,
+    });
+  }
 
   return (
     <main className="w-full h-screen flex justify-center">
@@ -50,7 +64,13 @@ export default function LoginPage() {
               <Checkbox />
               <span className="ml-2">Lembrar-me</span>
             </div>
-            <span className="text-foreground">Esqueceu sua senha?</span>
+            <button
+              type="button"
+              onClick={() => handleOpenModal()}
+              className="text-foreground cursor-pointer"
+            >
+              Esqueceu sua senha?
+            </button>
           </div>
           <Button
             type="submit"

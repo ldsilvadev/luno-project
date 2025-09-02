@@ -6,33 +6,44 @@ interface LoaderProps {
 
 export function Loader({ count = 3 }: LoaderProps) {
   const CardSkeleton = () => (
-    <div className="min-w-full md:min-w-md flex flex-col border border-indigo-100 rounded bg-gradient-to-br from-foreground/25 to-background m-0">
-      <div className="flex w-full items-center justify-between px-4 pt-2">
-        <div className="flex items-center gap-2">
-          <Skeleton className="w-4 h-4 rounded-full bg-indigo-200/50" />
-          <Skeleton className="h-3 w-20 bg-indigo-200/50" />
+    <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      {/* Header com status e ações */}
+      <div className="flex items-start justify-between p-4 sm:p-6 pb-3 sm:pb-4">
+        <div className="flex-1">
+          <Skeleton className="h-7 w-24 rounded-full bg-gray-200" />
+        </div>
+        <Skeleton className="h-8 w-8 rounded-full bg-gray-200" />
+      </div>
+
+      {/* Conteúdo principal */}
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6">
+        {/* Título */}
+        <Skeleton className="h-6 w-full mb-2 sm:mb-3 bg-gray-200" />
+        <Skeleton className="h-6 w-3/4 mb-4 sm:mb-6 bg-gray-200" />
+        
+        {/* Descrição */}
+        <div className="mb-6 space-y-2">
+          <Skeleton className="h-4 w-full bg-gray-200" />
+          <Skeleton className="h-4 w-5/6 bg-gray-200" />
+          <Skeleton className="h-4 w-4/5 bg-gray-200" />
         </div>
 
-        <Skeleton className="h-8 w-8 rounded bg-indigo-200/30" />
-      </div>
-
-      <div className="w-full px-4 pb-4">
-        <Skeleton className="h-6 w-48 bg-indigo-200/30" />
-      </div>
-
-      <div className="w-full px-4 pb-4">
-        <Skeleton className="h-2 w-48 bg-indigo-200/30" />
-      </div>
-
-      <div className="w-full py-3 px-4 bg-gradient-to-br from-foreground/60 to-foreground/10">
-        <div className="flex gap-5 items-center flex-wrap">
-          <div className="flex gap-1 items-center">
-            <Skeleton className="h-4 w-4 rounded-full bg-indigo-100/40" />
-            <Skeleton className="h-3 w-28 bg-indigo-100/40" />
+        {/* Datas com ícones */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-8 h-8 rounded-full bg-emerald-100" />
+              <Skeleton className="h-4 w-12 bg-gray-200" />
+            </div>
+            <Skeleton className="h-4 w-24 ml-auto bg-gray-200" />
           </div>
-          <div className="flex gap-1 items-center">
-            <Skeleton className="h-4 w-4 rounded-full bg-indigo-100/40" />
-            <Skeleton className="h-3 w-28 bg-indigo-100/40" />
+          
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-8 h-8 rounded-full bg-rose-100" />
+              <Skeleton className="h-4 w-8 bg-gray-200" />
+            </div>
+            <Skeleton className="h-4 w-24 ml-auto bg-gray-200" />
           </div>
         </div>
       </div>
@@ -40,12 +51,12 @@ export function Loader({ count = 3 }: LoaderProps) {
   );
 
   return (
-    <div className="w-full flex items-start gap-6 flex-wrap">
+    <>
       {Array.from({ length: count }).map((_, index) => (
-        <div key={index}>
+        <div key={index} className="flex justify-center">
           <CardSkeleton />
         </div>
       ))}
-    </div>
+    </>
   );
 }

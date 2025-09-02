@@ -27,10 +27,10 @@ type ApiTask = {
   updatedAt?: string | Date;
 };
 
-// App-wide consistent colors
+// App-wide consistent colors - Modern palette
 const columns = [
-  { id: "todo" as TaskStatus, name: "A Fazer", color: "#A5B4FC" },
-  { id: "in_progress" as TaskStatus, name: "Em Progresso", color: "#6366F1" },
+  { id: "todo" as TaskStatus, name: "A Fazer", color: "#E2E8F0" },
+  { id: "in_progress" as TaskStatus, name: "Em Progresso", color: "#3B82F6" },
   { id: "completed" as TaskStatus, name: "Concluídas", color: "#10B981" },
 ];
 
@@ -183,20 +183,21 @@ export function Kanban({ projectId, provideRefetch }: KanbanProps) {
           onDataChange={setFeatures}
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
+          className="grid-cols-1 lg:grid-cols-3 grid-flow-row lg:grid-flow-col gap-4"
         >
           {(column) => (
             <KanbanBoard
               id={column.id}
               key={column.id}
-              className="bg-gradient-to-tl from-foreground/25 to-background"
+              className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-xl shadow-sm min-h-[200px] md:min-h-[300px] lg:min-h-[500px] w-full"
             >
               <KanbanHeader>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 p-4 pb-2">
                   <div
-                    className="h-2 w-2 rounded-full"
+                    className="h-3 w-3 rounded-full shadow-sm"
                     style={{ backgroundColor: column.color }}
                   />
-                  <span>{column.name}</span>
+                  <span className="font-semibold text-gray-700 text-sm tracking-wide">{column.name}</span>
                 </div>
               </KanbanHeader>
               <KanbanCards id={column.id}>
@@ -206,43 +207,28 @@ export function Kanban({ projectId, provideRefetch }: KanbanProps) {
                     id={feature.id}
                     key={feature.id}
                     name={feature.name}
-                    className="bg-gradient-to-br from-foreground/40 to-background/30 text-background border-foreground/60 hover:shadow-lg transition-shadow duration-200"
+                    className="bg-white border border-gray-200/60 rounded-lg shadow-sm hover:shadow-md hover:border-gray-300/80 transition-all duration-200 mx-2 mb-3 w-auto min-w-0"
                   >
-                    <div className="flex items-start justify-between gap-2 p-3">
-                      <div className="flex flex-col gap-2 flex-1">
-                        <p className="m-0 font-semibold text-sm leading-tight text-white">
+                    <div className="flex flex-col gap-3 p-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="m-0 font-semibold text-sm leading-snug text-gray-800 tracking-wide flex-1 min-w-0 break-words">
                           {feature.name}
-                        </p>
-                        {feature.description && (
-                          <div
-                            className="m-0 text-xs text-indigo-100 leading-relaxed"
-                            style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: "vertical" as const,
-                              overflow: "hidden",
-                            }}
-                            dangerouslySetInnerHTML={{
-                              __html: sanitizeHtml(feature.description || ""),
-                            }}
-                          />
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1">
+                        </h4>
+                        <div className="flex items-center gap-1 opacity-70 hover:opacity-100 transition-opacity flex-shrink-0">
                         <Button
                           variant="ghost"
                           size="sm"
                           type="button"
                           aria-label="Visualizar/Editar tarefa"
                           title="Visualizar/Editar"
-                          className="h-6 w-6 p-0 text-indigo-100 hover:text-white hover:bg-indigo-800/50"
+                          className="h-7 w-7 p-0 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEditTask(feature);
                           }}
                         >
-                          <Eye className="h-3 w-3" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -250,23 +236,38 @@ export function Kanban({ projectId, provideRefetch }: KanbanProps) {
                           type="button"
                           aria-label="Excluir tarefa"
                           title="Excluir"
-                          className="h-6 w-6 p-0 text-red-100 hover:text-white hover:bg-red-800/50"
+                          className="h-7 w-7 p-0 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDelete(feature.id);
                           }}
                         >
-                          <Trash className="h-3 w-3" />
+                          <Trash className="h-3.5 w-3.5" />
                         </Button>
+                        </div>
                       </div>
+                      {feature.description && (
+                        <div
+                          className="m-0 text-xs text-gray-600 leading-relaxed break-words"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical" as const,
+                            overflow: "hidden",
+                          }}
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(feature.description || ""),
+                          }}
+                        />
+                      )}
                     </div>
                   </KanbanCard>
                 )}
               </KanbanCards>
               {features.filter((f) => f.column === column.id).length === 0 && (
                 <div
-                  className="p-3 text-xs text-foreground/50 italic text-center"
+                  className="p-4 md:p-6 text-xs text-gray-400 italic text-center bg-gray-50/50 rounded-lg mx-2 mb-3 border-2 border-dashed border-gray-200"
                   aria-live="polite"
                 >
                   Não há tarefas nesta coluna.

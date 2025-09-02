@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/modules";
+import { AuthProvider, ModalProvider } from "@/modules";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({
@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Luno",
-  description: "Organize your projects with Luno",
+  title: "Vora",
+  description: "Organize your projects with Vora",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
         <AuthProvider>
-          {children}
+          <ModalProvider>{children}</ModalProvider>
           <Toaster />
         </AuthProvider>
       </body>

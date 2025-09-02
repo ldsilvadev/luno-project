@@ -46,13 +46,29 @@ export function ProjectForm({ initialValues, onSuccess }: FormProps) {
       <div className="w-full flex flex-col md:flex-row gap-1 md:gap-2">
         <div className="w-full flex flex-col gap-1">
           <label>Data Inicio do Projeto</label>
-          <input type="date" {...register("start_date")} />
-          <span className="text-red-400">{errors.start_date?.message}</span>
+          <input 
+            type="date" 
+            {...register("start_date")} 
+            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.start_date ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.start_date?.message && (
+            <span className="text-red-400">{errors.start_date.message}</span>
+          )}
         </div>
         <div className="w-full flex flex-col gap-1">
           <label>Data Fim do Projeto</label>
-          <input type="date" {...register("end_date")} />
-          <span className="text-red-400">{errors.end_date?.message}</span>
+          <input 
+            type="date" 
+            {...register("end_date")} 
+            className={`px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.end_date ? 'border-red-500 focus:ring-red-500' : 'border-gray-300'
+            }`}
+          />
+          {errors.end_date?.message && (
+            <span className="text-red-400">{errors.end_date.message}</span>
+          )}
         </div>
       </div>
       <Button type="submit" className="mt-1">

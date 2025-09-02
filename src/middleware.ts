@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify, decodeJwt, decodeProtectedHeader } from "jose";
 
-const PUBLIC_API_PATHS = ["/api/auth/login", "/api/users"];
+const PUBLIC_API_PATHS = ["/api/auth/login", "/api/users", "/api/auth/request-password-reset", "/api/auth/reset-password"];
 
 interface TokenPayload {
   id: string;

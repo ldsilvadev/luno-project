@@ -20,7 +20,7 @@ function Input({ className, type, error, ...props }: InputProps) {
         )}
         {...props}
       />
-      <span className="text-red-400">{error}</span>
+      <span className="text-red-400 text-sm">{error}</span>
     </>
   );
 }

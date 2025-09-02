@@ -12,7 +12,7 @@ import z from "zod";
 const taskFormSchema = z.object({
   name: z.string().min(3, "Você deve preencher o nome da tarefa"),
   description: z.string().min(3, "Informe uma descrição para a tarefa"),
-  status: z.enum(["todo", "in_progress", "completed"]).optional(),
+  status: z.nativeEnum(TaskStatus).optional(),
 });
 
 type TaskFormSchema = z.infer<typeof taskFormSchema>;
@@ -34,6 +34,8 @@ export function useTaskForm(
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<TaskFormSchema>({
     defaultValues: {
@@ -121,6 +123,8 @@ export function useTaskForm(
     handleCreateTask,
     register,
     handleSubmit,
+    setValue,
+    watch,
     errors,
     isSubmitting,
     errorDescription,

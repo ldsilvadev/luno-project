@@ -1,6 +1,4 @@
-
-import { AuthService } from "@/features/auth/auth.service";
-import { loginSchema } from "@/features";
+import { AuthService, resetPasswordSchema } from "@/features";
 import { NextRequest, NextResponse } from "next/server";
 
 const authService = new AuthService();
@@ -8,17 +6,17 @@ const authService = new AuthService();
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validatedBody = loginSchema.parse(body);
+    const validatedBody = resetPasswordSchema.parse(body);
 
     const isDev = process.env.NODE_ENV !== "production";
     if (isDev) {
-      console.log("[login route] Processing login for:", validatedBody.email);
+      console.log("[reset-password route] Processing password reset with token");
     }
 
-    const result = await authService.login(validatedBody);
+    const result = await authService.resetPassword(validatedBody);
 
     if (isDev) {
-      console.log("[login route] Login successful, token emitted");
+      console.log("[reset-password route] Password reset successful");
     }
 
     return NextResponse.json(result, { status: 200 });
@@ -30,17 +28,15 @@ export async function POST(req: NextRequest) {
 
     if (error instanceof Error) {
       errorMessage = error.message;
-      if (
-        error.message === "Invalid email or password"
-      ) {
-        statusCode = 401;
+      if (error.message === "Invalid token") {
+        statusCode = 400;
       }
     } else if (typeof error === "string") {
       errorMessage = error;
     }
 
     if (isDev) {
-      console.log("[login route] Login failed:", errorMessage);
+      console.log("[reset-password route] Password reset failed:", errorMessage);
     }
 
     return NextResponse.json({ message: errorMessage }, { status: statusCode });
