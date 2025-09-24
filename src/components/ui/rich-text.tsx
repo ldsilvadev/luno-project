@@ -37,7 +37,7 @@ export function RichText({ label, placeholder, defaultValue, register }: RichTex
             ["bold", "italic", "underline", "strike"],
             [{ header: 1 }, { header: 2 }],
             [{ list: "ordered" }, { list: "bullet" }],
-            ["link", "image"],
+            ["link"],
             ["clean"],
           ],
         },

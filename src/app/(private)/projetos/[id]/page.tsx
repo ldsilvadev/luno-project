@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useGet } from "@/hooks";
 import { GetProject } from "@/types";
-import { useParams} from "next/navigation";
+import { useParams } from "next/navigation";
 import { Kanban, useModal } from "@/modules";
 import { ProjectForm, TaskForm } from "@/components";
 import { AppWindow, Play, X, Plus, Sparkles } from "lucide-react";
@@ -40,6 +40,8 @@ export default function Project() {
       title: "Editar projeto",
       description: "Faça alterações em seu projeto",
       content: <ProjectForm initialValues={data} onSuccess={refetch} />,
+      sizeClassName:
+        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
     });
   };
 
@@ -48,6 +50,8 @@ export default function Project() {
       title: "Criar tarefa",
       description: "Crie uma tarefa para seu projeto",
       content: <TaskForm projectId={id as string} onSuccess={refreshTasksFn} />,
+      sizeClassName:
+        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
     });
   };
 
@@ -141,7 +145,7 @@ export default function Project() {
         </div>
       </header>
 
-      <div className="w-full flex items-start mt-10 px-6 md:px-10">
+      <div className="w-full flex items-start mt-10 px-6 md:px-10 pb-5">
         <Kanban
           projectId={id as string}
           refetch={refetch}

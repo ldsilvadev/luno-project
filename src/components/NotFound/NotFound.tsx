@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import { useModal } from "@/modules";
 import { ProjectForm } from "@/components";
 
-export function NotFound() {
+export function NotFound({refetch}: {refetch?: () => void}) {
   const { openModal } = useModal();
 
   const handleCreateProject = () => {
     openModal({
       title: "Criar um projeto",
       description: "Preencha os campos abaixo para criar um novo projeto",
-      content: <ProjectForm />,
+      content: <ProjectForm onSuccess={refetch} />,
+      sizeClassName:
+        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
     });
   };
 

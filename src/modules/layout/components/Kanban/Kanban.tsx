@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/kibo-ui/kanban";
 import type { DragStartEvent as DndDragStartEvent } from "@dnd-kit/core";
 import { useDelete, useGet } from "@/hooks";
-import { Eye, Trash } from "lucide-react";
+import { Trash, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useModal } from "@/modules";
 import { TaskForm } from "@/components";
@@ -89,6 +89,7 @@ export function Kanban({ projectId, provideRefetch }: KanbanProps) {
     setFeatures(mapped);
   }, [data]);
 
+
   const handleEditTask = (task: {
     id: string;
     name: string;
@@ -103,15 +104,18 @@ export function Kanban({ projectId, provideRefetch }: KanbanProps) {
     };
 
     openModal({
-      title: "Visualizar Tarefa",
-      description: "Você pode visualizar e editar os dados da tarefa",
+      title: "Visualizar/Editar tarefa",
+      description: "Você pode visualizar ou editar os dados da tarefa",
       content: (
         <TaskForm
           initialValues={initialValues}
           projectId={projectId}
+          mode="view"
           onSuccess={refetchTasks}
         />
       ),
+      sizeClassName:
+        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
     });
   };
 
@@ -219,16 +223,16 @@ export function Kanban({ projectId, provideRefetch }: KanbanProps) {
                           variant="ghost"
                           size="sm"
                           type="button"
-                          aria-label="Visualizar/Editar tarefa"
-                          title="Visualizar/Editar"
-                          className="h-7 w-7 p-0 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                          aria-label="Editar tarefa"
+                          title="Editar"
+                          className="h-7 w-7 p-0 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
                           onMouseDown={(e) => e.stopPropagation()}
                           onClick={(e) => {
                             e.stopPropagation();
                             handleEditTask(feature);
                           }}
                         >
-                          <Eye className="h-3.5 w-3.5" />
+                          <FileText className="h-3.5 w-3.5" />
                         </Button>
                         <Button
                           variant="ghost"

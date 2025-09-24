@@ -42,6 +42,8 @@ export default function Projetos() {
       title: "Criar um projeto",
       description: "Preencha os campos abaixo para criar um novo projeto",
       content: <ProjectForm onSuccess={refetch} />,
+      sizeClassName:
+        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
     });
   };
 
@@ -51,6 +53,8 @@ export default function Projetos() {
       description:
         "Descreva sua ideia e a IA criará a estrutura do projeto para você",
       content: <ProjectForm />,
+      sizeClassName:
+        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
     });
   };
 
@@ -206,6 +210,8 @@ export default function Projetos() {
                           onSuccess={refetch}
                         />
                       ),
+                      sizeClassName:
+                        "!max-w-[80%] lg:!max-w-[800px]  lg2:!max-w-[800px] max-h-[95%] overflow-y-auto",
                     })
                   }
                   onDelete={() => handleDelete(project.id)}
@@ -215,7 +221,7 @@ export default function Projetos() {
           </div>
         ) : (
           <div className="flex justify-center">
-            <NotFound />
+            <NotFound refetch={refetch} />
           </div>
         )}
       </div>
